@@ -11,3 +11,6 @@
 6 Estilo responsivo : utlize CSS y un diseño adaptable para asegurar que los formularios se vean bien en dispositivos de diferentes tamaños.
 
 7 redirección entre formularios: cambié entre las vistas de login y registro mediante eventos en JavaScript que actualizan el contenido del contenedor principal
+
+
+8 modo oscuro: implementé un botón que activa el modo oscuro al alternar la clase dark-mode en el cuerpo. esto aplica estilos dinámicos invertidos a fondo, texto, entradas y enlaces mediante CSS
