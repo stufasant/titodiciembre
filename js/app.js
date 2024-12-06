@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         const loginForm = document.getElementById("login-form");
-        const errorMessage = document.getElementById("error-message");
         const createAccountLink = document.getElementById("create-account");
 
         loginForm.addEventListener("submit", (e) => {
@@ -36,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             if (usuarioValido) {
-                alert("¡Inicio de sesión exitoso!");
-                window.location.href = "404.html"; // Redirige a la página deseada
+                mostrarError404();
             } else {
+                const errorMessage = document.getElementById("error-message");
                 errorMessage.textContent = "Usuario o contraseña incorrectos.";
                 errorMessage.style.color = "red";
             }
@@ -90,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         const registerForm = document.getElementById("register-form");
-        const errorMessage = document.getElementById("error-message");
         const backToLoginLink = document.getElementById("back-to-login");
 
         registerForm.addEventListener("submit", (e) => {
@@ -103,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const confirmPassword = document.getElementById("confirm-password").value.trim();
 
             if (password !== confirmPassword) {
+                const errorMessage = document.getElementById("error-message");
                 errorMessage.textContent = "Las contraseñas no coinciden.";
                 errorMessage.style.color = "red";
                 return;
@@ -112,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const usuarioExistente = usuarios.find((u) => u.usuario === usuario);
 
             if (usuarioExistente) {
+                const errorMessage = document.getElementById("error-message");
                 errorMessage.textContent = "El nombre de usuario ya está en uso.";
                 errorMessage.style.color = "red";
                 return;
@@ -121,11 +121,26 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
             alert("¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.");
-            mostrarLogin();
+            mostrarError404();
         });
 
         backToLoginLink.addEventListener("click", (e) => {
             e.preventDefault();
+            mostrarLogin();
+        });
+    };
+
+    // Función para mostrar el mensaje de Error 404
+    const mostrarError404 = () => {
+        formContainer.innerHTML = `
+            <div class="form-content">
+                <h1 style="font-size: 3rem; color: red;">Error 404</h1>
+                <button id="logout-btn" style="margin-top: 20px;">Cerrar sesión</button>
+            </div>
+        `;
+
+        const logoutButton = document.getElementById("logout-btn");
+        logoutButton.addEventListener("click", () => {
             mostrarLogin();
         });
     };
