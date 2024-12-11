@@ -1,7 +1,68 @@
 document.addEventListener("DOMContentLoaded", () => {
     const formContainer = document.getElementById("form-container");
 
-    // Función para mostrar el formulario de login
+    const manejarExpiracionSesion = () => {
+        localStorage.removeItem("sessionId");
+        alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
+        mostrarLogin();
+    };
+
+    const iniciarSesionConTemporizador = () => {
+        const sessionId = Date.now(); // Identificador único basado en el tiempo actual
+        localStorage.setItem("sessionId", sessionId);
+
+        // Almacena el tiempo de expiración (10 minutos)
+        localStorage.setItem("sessionExpiry", sessionId + 600000);
+
+        setTimeout(() => {
+            manejarExpiracionSesion();
+        }, 600000);
+    };
+
+    const verificarSesion = () => {
+        const sessionId = localStorage.getItem("sessionId");
+        const sessionExpiry = localStorage.getItem("sessionExpiry");
+
+        // Si hay un sessionId válido y la sesión no ha expirado, permanece en la sesión
+        if (sessionId && sessionExpiry && Date.now() < sessionExpiry) {
+            const tiempoRestante = sessionExpiry - Date.now();
+
+            // Renueva el temporizador para la sesión
+            setTimeout(() => {
+                manejarExpiracionSesion();
+            }, tiempoRestante);
+
+            mostrarError404(); // Muestra la página de sesión activa
+        } else {
+            localStorage.removeItem("sessionId");
+            localStorage.removeItem("sessionExpiry");
+            mostrarLogin(); // Redirige al login si la sesión no es válida
+        }
+    };
+
+    const manejarModoOscuro = () => {
+        const modoOscuroActivado = localStorage.getItem("modoOscuro") === "true";
+
+        if (modoOscuroActivado) {
+            document.body.classList.add("modo-oscuro");
+        } else {
+            document.body.classList.remove("modo-oscuro");
+        }
+    };
+
+    const alternarModoOscuro = () => {
+        const modoOscuroActivado = document.body.classList.toggle("modo-oscuro");
+        localStorage.setItem("modoOscuro", modoOscuroActivado);
+    };
+
+    const agregarBotonModoOscuro = () => {
+        const botonModoOscuro = document.createElement("button");
+        botonModoOscuro.textContent = "Alternar Modo Oscuro";
+        botonModoOscuro.classList.add("modo-oscuro-boton");
+        botonModoOscuro.addEventListener("click", alternarModoOscuro);
+        document.body.appendChild(botonModoOscuro);
+    };
+
     const mostrarLogin = () => {
         formContainer.innerHTML = `
             <div class="form-content">
@@ -35,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             if (usuarioValido) {
+                iniciarSesionConTemporizador();
                 mostrarError404();
             } else {
                 const errorMessage = document.getElementById("error-message");
@@ -49,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Función para mostrar el formulario de registro
     const mostrarRegistro = () => {
         formContainer.innerHTML = `
             <div class="form-content">
@@ -88,6 +149,10 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
+        setTimeout(() => {
+            manejarExpiracionSesion();
+        }, 600000); // Tiempo límite en la página de registro
+
         const registerForm = document.getElementById("register-form");
         const backToLoginLink = document.getElementById("back-to-login");
 
@@ -121,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
             alert("¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.");
-            mostrarError404();
+            mostrarLogin();
         });
 
         backToLoginLink.addEventListener("click", (e) => {
@@ -130,7 +195,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Función para mostrar el mensaje de Error 404
     const mostrarError404 = () => {
         formContainer.innerHTML = `
             <div class="form-content">
@@ -141,9 +205,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const logoutButton = document.getElementById("logout-btn");
         logoutButton.addEventListener("click", () => {
+            localStorage.removeItem("sessionId");
+            localStorage.removeItem("sessionExpiry");
             mostrarLogin();
         });
     };
 
-    mostrarLogin();
+    manejarModoOscuro();
+    agregarBotonModoOscuro();
+    verificarSesion(); // Verifica el estado de la sesión al cargar la página
 });
