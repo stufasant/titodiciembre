@@ -55,12 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("modoOscuro", modoOscuroActivado);
     };
 
-    const agregarBotonModoOscuro = () => {
-        const botonModoOscuro = document.createElement("button");
-        botonModoOscuro.textContent = "Alternar Modo Oscuro";
-        botonModoOscuro.classList.add("modo-oscuro-boton");
-        botonModoOscuro.addEventListener("click", alternarModoOscuro);
-        document.body.appendChild(botonModoOscuro);
+    const configurarBotonModoOscuro = () => {
+        const darkModeBtn = document.getElementById("dark-mode-btn");
+        if (darkModeBtn) {
+            darkModeBtn.addEventListener("click", alternarModoOscuro);
+        }
     };
 
     const mostrarLogin = () => {
@@ -212,6 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     manejarModoOscuro();
-    agregarBotonModoOscuro();
+    configurarBotonModoOscuro();
     verificarSesion(); // Verifica el estado de la sesión al cargar la página
 });
