@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const manejarExpiracionSesion = () => {
         localStorage.removeItem("sessionId");
+        localStorage.removeItem("sessionExpiry");
         alert("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.");
         mostrarLogin();
     };
@@ -23,16 +24,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const sessionId = localStorage.getItem("sessionId");
         const sessionExpiry = localStorage.getItem("sessionExpiry");
 
-        // Si hay un sessionId válido y la sesión no ha expirado, permanece en la sesión
         if (sessionId && sessionExpiry && Date.now() < sessionExpiry) {
             const tiempoRestante = sessionExpiry - Date.now();
 
-            // Renueva el temporizador para la sesión
             setTimeout(() => {
                 manejarExpiracionSesion();
             }, tiempoRestante);
 
-            mostrarError404(); // Muestra la página de sesión activa
+            mostrarAppDados(); // Muestra la app de dados
         } else {
             localStorage.removeItem("sessionId");
             localStorage.removeItem("sessionExpiry");
@@ -95,8 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             if (usuarioValido) {
+                localStorage.setItem("loggedUser", username);
                 iniciarSesionConTemporizador();
-                mostrarError404();
+                mostrarAppDados();
             } else {
                 const errorMessage = document.getElementById("error-message");
                 errorMessage.textContent = "Usuario o contraseña incorrectos.";
@@ -107,6 +107,39 @@ document.addEventListener("DOMContentLoaded", () => {
         createAccountLink.addEventListener("click", (e) => {
             e.preventDefault();
             mostrarRegistro();
+        });
+    };
+
+    const mostrarAppDados = () => {
+        const loggedUser = localStorage.getItem("loggedUser") || "Usuario";
+        formContainer.innerHTML = `
+            <div class="app-dados">
+                <h1>¡Bienvenido, ${loggedUser}!</h1>
+                <img id="dice-image" src="./imagenes/dice-1-regular-24.png" alt="Dado" width="100">
+                <button id="roll-dice">Tirar Dado</button>
+                <p>Resultado acumulado: <span id="total-score">0</span></p>
+                <button id="logout-btn">Cerrar Sesión</button>
+            </div>
+        `;
+
+        const diceImage = document.getElementById("dice-image");
+        const rollDiceButton = document.getElementById("roll-dice");
+        const totalScoreSpan = document.getElementById("total-score");
+        const logoutButton = document.getElementById("logout-btn");
+        let totalScore = 0;
+
+        rollDiceButton.addEventListener("click", () => {
+            const diceResult = Math.floor(Math.random() * 6) + 1;
+            diceImage.src = `./imagenes/dice-${diceResult}-regular-24.png`;
+            totalScore += diceResult;
+            totalScoreSpan.textContent = totalScore;
+        });
+
+        logoutButton.addEventListener("click", () => {
+            localStorage.removeItem("sessionId");
+            localStorage.removeItem("sessionExpiry");
+            localStorage.removeItem("loggedUser");
+            mostrarLogin();
         });
     };
 
@@ -128,89 +161,32 @@ document.addEventListener("DOMContentLoaded", () => {
                         <input type="text" id="usuario" required>
                     </div>
                     <div class="input-group">
-                        <label for="correo">Correo electrónico</label>
-                        <input type="email" id="correo" required>
+                        <label for="contrasena">Contraseña</label>
+                        <input type="password" id="contrasena" required>
                     </div>
-                    <div class="input-group">
-                        <label for="password">Contraseña</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="confirm-password">Confirmar contraseña</label>
-                        <input type="password" id="confirm-password" required>
-                    </div>
-                    <button type="submit" id="register-btn">Registrarse</button>
+                    <button type="submit">Registrar</button>
                 </form>
-                <p id="error-message" class="error-message"></p>
-                <div class="form-actions">
-                    <p><a href="#" id="back-to-login">Volver al login</a></p>
-                </div>
             </div>
         `;
 
-        setTimeout(() => {
-            manejarExpiracionSesion();
-        }, 600000); // Tiempo límite en la página de registro
-
         const registerForm = document.getElementById("register-form");
-        const backToLoginLink = document.getElementById("back-to-login");
 
         registerForm.addEventListener("submit", (e) => {
             e.preventDefault();
             const nombre = document.getElementById("nombre").value.trim();
             const apellido = document.getElementById("apellido").value.trim();
             const usuario = document.getElementById("usuario").value.trim();
-            const correo = document.getElementById("correo").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const confirmPassword = document.getElementById("confirm-password").value.trim();
-
-            if (password !== confirmPassword) {
-                const errorMessage = document.getElementById("error-message");
-                errorMessage.textContent = "Las contraseñas no coinciden.";
-                errorMessage.style.color = "red";
-                return;
-            }
+            const contrasena = document.getElementById("contrasena").value.trim();
 
             const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-            const usuarioExistente = usuarios.find((u) => u.usuario === usuario);
-
-            if (usuarioExistente) {
-                const errorMessage = document.getElementById("error-message");
-                errorMessage.textContent = "El nombre de usuario ya está en uso.";
-                errorMessage.style.color = "red";
-                return;
-            }
-
-            usuarios.push({ nombre, apellido, usuario, correo, contrasena: password });
+            usuarios.push({ nombre, apellido, usuario, contrasena });
             localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-            alert("¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.");
-            mostrarLogin();
-        });
-
-        backToLoginLink.addEventListener("click", (e) => {
-            e.preventDefault();
+            alert("Usuario registrado con éxito");
             mostrarLogin();
         });
     };
 
-    const mostrarError404 = () => {
-        formContainer.innerHTML = `
-            <div class="form-content">
-                <h1 style="font-size: 3rem; color: red;">Error 404</h1>
-                <button id="logout-btn" style="margin-top: 20px;">Cerrar sesión</button>
-            </div>
-        `;
-
-        const logoutButton = document.getElementById("logout-btn");
-        logoutButton.addEventListener("click", () => {
-            localStorage.removeItem("sessionId");
-            localStorage.removeItem("sessionExpiry");
-            mostrarLogin();
-        });
-    };
-
+    verificarSesion();
     manejarModoOscuro();
     configurarBotonModoOscuro();
-    verificarSesion(); // Verifica el estado de la sesión al cargar la página
 });
