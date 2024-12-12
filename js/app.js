@@ -166,10 +166,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <button type="submit">Registrar</button>
                 </form>
+                <p><a href="#" id="go-to-login">Ya tengo cuenta, ir al login</a></p> <!-- Enlace al login -->
             </div>
         `;
 
         const registerForm = document.getElementById("register-form");
+        const goToLoginLink = document.getElementById("go-to-login");
 
         registerForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -183,6 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("usuarios", JSON.stringify(usuarios));
             alert("Usuario registrado con éxito");
             mostrarLogin();
+        });
+
+        goToLoginLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            mostrarLogin(); // Redirige al login
         });
     };
 
