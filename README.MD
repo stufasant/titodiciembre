@@ -14,3 +14,5 @@
 
 
 8 modo oscuro: implementé un botón que activa el modo oscuro al alternar la clase dark-mode en el cuerpo. esto aplica estilos dinámicos invertidos a fondo, texto, entradas y enlaces mediante CSS
+
+9 app de dados: La app de dados  permite al usuario tirar un dado, mostrar el resultado en imagen, acumular los puntos obtenidos y cerrarla sesión. Utiliza `localStorage` para gestionar la sesión.
